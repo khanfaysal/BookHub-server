@@ -10,6 +10,38 @@ const createBookZodSchema = z.object({
   }),
 });
 
+const createBookUpdateZodSchema = z.object({
+  body: z.object({
+    title: z
+    .string({
+      required_error: 'Title is required',
+    })
+    .optional(),
+    author: z
+    .string({
+      required_error: 'Author is required',
+    })
+    .optional(),
+    genre: z
+    .string({
+      required_error: 'Genre is required',
+    })
+    .optional(),
+    publicationDate: z
+    .string({
+      required_error: 'Publication Date/Year is required',
+    })
+    .optional(),
+    reviews: z
+    .string({
+      required_error: 'Reviews is required',
+    })
+    .optional(),
+  }),
+});
+
+
 export const BookValidation = {
-  createBookZodSchema
+  createBookZodSchema,
+  createBookUpdateZodSchema
 }
