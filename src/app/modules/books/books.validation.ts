@@ -9,3 +9,7 @@ const createBookZodSchema = z.object({
     reviews: z.string().optional()
   }),
 });
+
+export const BookValidation = {
+  createBookZodSchema
+}

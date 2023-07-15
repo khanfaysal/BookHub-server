@@ -1,39 +1,42 @@
-
-import express, { Application, Request, Response, NextFunction } from 'express';
+import express, { Application, NextFunction, Request, Response } from 'express';
 import cors from 'cors';
-import { connectDB } from './server';
-import config from './config';
+import globalErrorHandler from './app/middlewares/globalErrorHandler';
+import routes from './app/routes';
+import httpStatus from 'http-status';
+
 
 const app: Application = express();
-const port = config.port || 3000;
 
-// Middleware
 app.use(cors());
+
+// parser
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// application Routes
-// app.use('api/v1', routes)
+// application routes
+app.use('/api/v1', routes);
 
-// Error handling middleware
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  console.error(err.stack);
-  res.status(500).send('Something broke!');
+// testing purpose route
+app.get('/', (req: Request, res: Response, next: NextFunction) => {
+  res.send('Hello World!');
 });
 
-// Start the server
-const startServer = async () => {
-  console.log('first')
-  try {
-    await connectDB();
-    app.listen(port, () => {
-      console.log(`Server is running on port ${port}`);
-    });
+// global error handler
+app.use(globalErrorHandler);
 
-  } catch (error) {
-    console.error('Error starting the server:', error);
-    process.exit(1);
-  }
-};
+// handle not found
+app.use((req: Request, res: Response, next: NextFunction) => {
+  res.status(httpStatus.NOT_FOUND).json({
+    success: false,
+    message: 'Not found',
+    errorMessages: [
+      {
+        path: req.originalUrl,
+        message: 'Not found',
+      },
+    ],
+  });
+  next();
+});
 
-startServer();
+export default app;

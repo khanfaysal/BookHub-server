@@ -1,30 +1,39 @@
-import { MongoClient, Db } from 'mongodb';
+import mongoose from 'mongoose';
+import app from './app';
+import { Server } from 'http';
 import config from './config';
 
-const url = config.database_url;
-const dbName = 'BookHub';
+process.on('uncaughtException', error => {
+  console.log(error);
+  process.exit(1);
+});
 
-let db: Db;
+let server: Server;
 
-export const connectDB = async () => {
+async function bootstrap() {
+  console.log('first')
   try {
-    const client = new MongoClient(url as string, {
-      useUnifiedTopology: true,
+    await mongoose.connect(config.database_url as string);
+    console.log(`Database connected Successfully`);
+
+    server = app.listen(config.port, () => {
+      console.log(`Application listening on port ${config.port}`);
     });
-    await client.connect();
-    db = client.db(dbName);
-    console.log('Connected to MongoDB');
   } catch (error) {
-    console.error('Error connecting to MongoDB:', error);
-    throw error;
+    console.log('Failed to connect database', error);
   }
-};
+  process.on('unhandledRejection', error => {
+    console.log('unhandledRejection is detected, we are closing our server');
+    if (server) {
+      server.close(error => {
+        console.log(error);
+        process.exit(1);
+      });
+    } else {
+      process.exit(1);
+    }
+  });
+}
+bootstrap();
 
-  
 
-export const getDB = () => {
-  if (!db) {
-    throw new Error('Database not connected');
-  }
-  return db;
-};
