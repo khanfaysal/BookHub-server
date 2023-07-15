@@ -1,17 +1,30 @@
-import { MongoClient } from 'mongodb';
+import { MongoClient, Db } from 'mongodb';
+import config from './config';
 
-const url = 'mongodb://localhost:27017';
-const dbName = 'your-database-name';
+const url = config.database_url;
+const dbName = 'BookHub';
+
+let db: Db;
 
 export const connectDB = async () => {
   try {
-    const client = await MongoClient.connect(url);
-    const db = client.db(dbName);
+    const client = new MongoClient(url as string, {
+      useUnifiedTopology: true,
+    });
+    await client.connect();
+    db = client.db(dbName);
     console.log('Connected to MongoDB');
-
-    return db;
   } catch (error) {
     console.error('Error connecting to MongoDB:', error);
     throw error;
   }
+};
+
+  
+
+export const getDB = () => {
+  if (!db) {
+    throw new Error('Database not connected');
+  }
+  return db;
 };
