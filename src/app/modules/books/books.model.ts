@@ -16,12 +16,12 @@ const BookSchema = new Schema<IBook, BookModel>(
       required: true,
     },
     publicationDate: {
-        type: String,
-        required: true,
-      },
+      type: String,
+      required: true,
+    },
     reviews: {
-        type: String,
-        required: true,
+      type: [String], // Specify the type as an array of strings
+      required: true,
     },
   },
   {
